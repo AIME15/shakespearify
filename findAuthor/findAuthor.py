@@ -1,12 +1,10 @@
-#findAuthor.py
-
 from math import log, sqrt
 from tester import read_input,get_train, run_tests, authors, MAX_TRAIN, word_list, word_map, clean
 import numpy
 import interpret
 
 EPOCHS = 1
-NUM_AUTHORS = len (authors)
+NUM_AUTHORS = len(authors)
 EPS = 1E-2
 
 NUM_WORDS = None
@@ -33,26 +31,27 @@ def mat_author(author):
 def get_feature_vector (sentence):
 	global word_map, N
 
-	X = numpy.zeros ((N, 1))
+	X = numpy.zeros((N, 1))
 	#0th element is 1
-	X [0, 0] = 1
+	X[0, 0] = 1
 	for word in sentence:
-		if word in word_map:
-			X [word_map[word], 0] += 1
+		if word in word_map: # only uses words that were seen in testing data
+			X[word_map[word], 0] += 1
 
     #use api stuff, except darn this doesn't really work
 	#score = interpret.stringToSentiment(' '.join(sentence))
 	#X [NUM_WORDS, 0] = score
 	#X [NUM_WORDS, 0] = 0
-	X [NUM_WORDS, 0] = len (sentence)
+	X[NUM_WORDS, 0] = len(sentence) # uses sentence length as feature
 
     #done
 	return X
 
 #useless stuff
-def sq (a): 
+def sq(a): 
 	return a * a
-def normalize ():
+
+def normalize():
 	global W
 	for j in range (1,NUM_WORDS):
 		var = 0.0
@@ -62,14 +61,21 @@ def normalize ():
 		assert (var > 0)
 		for i in range (NUM_AUTHORS):
 			W[i,j] /= std
-def get_best (Y):
+
+"""
+Takes output vector Y and returns the author at the index i with highest Y[i].
+"""
+def get_best(Y):
 	global authors
 	best = 0
-	for i in range (NUM_AUTHORS):
+	for i in range(NUM_AUTHORS):
 		if Y[i, 0] > Y[best, 0]:
 			best = i
-	return authors [best]
+	return authors[best]
 
+"""
+Gets all the data required to run naive Bayes.
+"""
 def train_bayes():
 	global MAX_TRAIN, freq, word_count
 
@@ -81,9 +87,9 @@ def train_bayes():
 		num_iter += 1
 
 		[sentence, author] = example
-		words = sentence
-		for word in words:
-			if word not in freq[author]: # this code is ugly
+	
+		for word in sentence:
+			if word not in freq[author]: # there should be a better way to do this
 				freq[author][word] = 0
 			freq[author][word] += 1
 
@@ -92,7 +98,9 @@ def train_bayes():
 	for author in authors:
 		word_count[author] = sum([freq[author][key] for key in freq[author]]) + 0.0
 
-#set initial weights to naive bayes results
+"""
+Initializes W to results from naive Bayes.
+"""
 def setW():
 	global W, NUM_AUTHORS, word_list, freq, word_count, authors
 
@@ -100,16 +108,20 @@ def setW():
 		for j in range(len(word_list)):
 			if j == 0:
 				continue
-			word = word_list [j]
-			author = authors [i]
+			word = word_list[j]
+			author = authors[i]
 
-			score = log (EPS) - log (word_count [author])
+			score = log(EPS) - log(word_count[author])
 			if word in freq[author]:
 				score = log(freq[author][word]) - log(word_count[author])
-			W [i, j] = score
 
+			W[i, j] = score
+
+"""
+Runs perceptron learning algorithm. 
+"""
 def train():
-	global W,alpha, N, EPOCHS, MAX_TRAIN
+	global W, alpha, N, EPOCHS, MAX_TRAIN
 
 	example = get_train()
     
@@ -122,39 +134,67 @@ def train():
 
 		[sentence, author] = example
         
-		x = numpy.mat (get_feature_vector (sentence))
-		d = mat_author (author)
+		x = numpy.mat(get_feature_vector(sentence))
+		d = mat_author(author)
 		Y = W * x
 		W += alpha * (d - Y) * (x.transpose())
 		
 		"""
-		dawg = get_best (Y)
-		if get_best (Y) == author:
+		dawg = get_best(Y)
+		if get_best(Y) == author:
 			num_cor += 1
 			print dawg
 		"""
 
 		example = get_train()
 
+"""
+Given an array of words, predict the author.
+"""
 def test(sentence):
 	global W
 
 	x = get_feature_vector (sentence)
 	Y = W * x
-	ret = get_best (Y)
+	ret = get_best(Y)
 	return ret
 
+"""
+Given a string, predict the author.
+"""
 def test_string (s):
 	sentence = []
 	for word in s.split():
-		sentence.append (clean (word))
+		sentence.append(clean(word))
 	print sentence
-	return test (sentence)
+	return test(sentence)
+
+"""
+Naive Bayes predictor.
+"""
+def naive_bayes_predictor(sentence):
+	global freq
+	scores = dict()
+
+	for author in authors:
+		scores[author] = 0
+
+	for word in sentence:
+		for author in authors:
+			if word not in freq[author]:
+				scores[author] += log(EPS) - log(word_count[author])
+			else:
+				scores[author] += log(freq[author][word]) - log(word_count[author])
+
+
+	return max(scores.iterkeys(), key = (lambda key: scores[key]))
+
+
 
 print "Reading Input..."
-read_input ()
-N = len (word_list) + 1 # size of feature vector
-W = numpy.mat (numpy.zeros((NUM_AUTHORS, N)))
+read_input()
+N = len(word_list) + 1 # size of feature vector. +1 for sentence length 
+W = numpy.mat(numpy.zeros((NUM_AUTHORS, N)))
 NUM_WORDS = len(word_list)
 
 print "Training Bayes..."
@@ -165,9 +205,10 @@ setW()
 print "Training..."
 train()
 
-print test_string ("To be, or not to be")
-print test_string ("Oh what a rouge and peasant slave am i")
-print test_string ("Macbeth")
+# print test_string ("To be, or not to be")
+# print test_string ("Oh what a rouge and peasant slave am i")
+# print test_string ("Macbeth")
 
 print "Testing..."
 run_tests(test)
+run_tests(naive_bayes_predictor)
