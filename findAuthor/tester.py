@@ -2,9 +2,9 @@ import random, math
 from string import ascii_lowercase
 from author import authors
 
-MAX_WORDS_PER_FILE = 1000000
-MAX_TRAIN = 100000
-MAX_TEST = 1000
+MAX_WORDS_PER_FILE = 300000
+MAX_TRAIN = 10000
+MAX_TEST = 10000
 
 sent_ind = 0
 sentences = []

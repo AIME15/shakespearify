@@ -3,14 +3,14 @@ from tester import read_input, get_train, run_tests, authors, MAX_TRAIN, word_li
 import numpy
 import interpret
 
-EPOCHS = 10
+EPOCHS = 1
 NUM_AUTHORS = len(authors)
 EPS = 1E-2
 
 NUM_WORDS = None
 N = None
 W = None
-alpha = 0.00001
+
 
 freq = dict()
 word_count = dict()
@@ -101,7 +101,7 @@ def train_bayes():
 """
 Initializes W to results from naive Bayes.
 """
-def setW():
+def set_w_bayes():
 	global W, NUM_AUTHORS, word_list, freq, word_count, authors
 
 	for i in range (NUM_AUTHORS):
@@ -118,17 +118,24 @@ def setW():
 			W[i, j] = score
 
 """
-Runs perceptron learning algorithm. 
+Initializes W to 0.
 """
-def train():
-	global W, alpha, N, EPOCHS, MAX_TRAIN
+def set_w_zero():
+	global W
+	W = numpy.mat(numpy.zeros((NUM_AUTHORS, N)))
+
+"""
+Runs perceptron learning algorithm given learning rate alpha.
+"""
+def train(alpha, epochs):
+	global W, N, MAX_TRAIN
 
 	example = get_train()
     
 	num_iter = 0
 	num_cor = 0
 	while True:
-		if num_iter >= MAX_TRAIN * EPOCHS / 10:
+		if num_iter >= MAX_TRAIN * epochs:
 			break
 		num_iter += 1
 
@@ -189,6 +196,22 @@ def naive_bayes_predictor(sentence):
 
 	return max(scores.iterkeys(), key = (lambda key: scores[key]))
 
+def test_perceptron():
+	global W
+	for i in range(3, 6):
+		set_w_bayes()
+		run_tests(test)
+		alpha = 10 ** (- i)
+		print "Testing perceptron with naive Bayesian prior, alpha =", alpha
+		train(alpha, EPOCHS)
+		run_tests(test)
+
+	for i in range(3, 6):
+		set_w_zero()
+		alpha = 10 ** (- i)
+		print "Testing perceptron with zero prior, alpha =", alpha
+		train(alpha, EPOCHS)
+		run_tests(test)
 
 
 print "Reading Input..."
@@ -199,17 +222,23 @@ NUM_WORDS = len(word_list)
 
 print "Training Bayes..."
 train_bayes()
-setW()
+
+test_perceptron()
+
+# set_w_bayes()
+
+
+
 #print "Normalizing W"
 #normalize ()
-print "Training..."
-train()
+# print "Training..."
+# train(1, EPOCHS)
 
 # print test_string ("To be, or not to be")
 # print test_string ("Oh what a rouge and peasant slave am i")
 # print test_string ("Macbeth")
 
-print "Testing perceptron..."
-run_tests(test)
-print "Testing naive Bayes..."
-run_tests(naive_bayes_predictor)
+# print "Testing perceptron..."
+# run_tests(test)
+# print "Testing naive Bayes..."
+# run_tests(naive_bayes_predictor)
