@@ -77,8 +77,10 @@ def run_tests(predictor):
 	
 	for i in range(MAX_TRAIN, MAX_TRAIN + MAX_TEST): # make sure test and testing data don't clash
 		ret = predictor(sentences[i][0])
-		if ret == sentences [i][1]:
+		if ret == sentences[i][1]:
 			correct += 1
 		total += 1
-		if (i % 10 == 9):
-			print str(100.0 * correct / total) + '%', str(correct) + '/' + str(total)
+		# if (i % 10 == 9):
+			# print str(100.0 * correct / total) + '%', str(correct) + '/' + str(total)
+
+	print str(100.0 * correct / total) + '%', str(correct) + '/' + str(total)

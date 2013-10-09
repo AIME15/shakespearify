@@ -1,9 +1,9 @@
 from math import log, sqrt
-from tester import read_input,get_train, run_tests, authors, MAX_TRAIN, word_list, word_map, clean
+from tester import read_input, get_train, run_tests, authors, MAX_TRAIN, word_list, word_map, clean
 import numpy
 import interpret
 
-EPOCHS = 1
+EPOCHS = 10
 NUM_AUTHORS = len(authors)
 EPS = 1E-2
 
@@ -209,6 +209,7 @@ train()
 # print test_string ("Oh what a rouge and peasant slave am i")
 # print test_string ("Macbeth")
 
-print "Testing..."
+print "Testing perceptron..."
 run_tests(test)
+print "Testing naive Bayes..."
 run_tests(naive_bayes_predictor)
