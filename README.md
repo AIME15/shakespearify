@@ -1,4 +1,4 @@
 shakespearify
 =============
 
-HackMIT 2013
+hackmit 2013
