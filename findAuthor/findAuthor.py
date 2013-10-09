@@ -11,7 +11,6 @@ NUM_WORDS = None
 N = None
 W = None
 
-
 freq = dict()
 word_count = dict()
 
