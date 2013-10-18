@@ -1,0 +1,17 @@
+The code as of 10/17/2013 was pretty much all hacked together during HackMIT 2013. As a result the code is pretty hard to read and debug. I'm going to restructure the code so it's easier to add more functionality, test, and debug.
+
+0) Reading input
+	Specify number of authors, training examples per author.
+	Store sentence-author pairs as objects.
+	
+
+1) Training
+	Naive Bayesian predictor
+	Perceptron
+	Neural network with backpropogation
+
+	Use get_next_example() to get a training example.
+
+
+2) Testing
+	Should be able to specify number of authors, number of tests, which predictor
