@@ -14,11 +14,7 @@ word_map = dict()
 
 def clean(word):
 	word = word.lower()
-	ret = ""
-	for c in word:
-		if c in ascii_lowercase:# or c == '':
-			ret = ret + c
-	return ret
+	return ''.join([c for c in word if c in ascii_lowercase])
 
 """
 Opens data files and stores in sentences array.
